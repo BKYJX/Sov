@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mr · 聊天 · 纯SVG图标</title>
+    <style>
+        /* ===== CSS Variables ===== */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+
+        :root {
+            /* 亮色主题 (默认) */
+            --bg-app: #f0f2f5;
+            --bg-header: #e4e6eb;
+            --border-header: #d0d2d8;
+            --bg-body: #eef0f5;
+            --bg-sidebar: #e4e6ec;
+            --border-sidebar: #d0d2da;
+            --bg-message-area: #f5f6fa;
+            --bg-footer: #e8eaf0;
+            --border-footer: #d0d2dc;
+            --input-bg: #f0f1f6;
+            --input-border: #c8c9d4;
+            --text-primary: #1e1e2a;
+            --text-secondary: #3c3c52;
+            --text-muted: #6b6b86;
+            --text-light: #8a8aaa;
+            --badge-bg: #d7d8e3;
+            --badge-text: #3d3d5a;
+            --hover-bg: #d9dbe6;
+            --active-bg: #c8cbd9;
+            --border-msg: #d6d8e3;
+            --avatar-bg: #c9cbe0;
+            --avatar-text: #2e2e4a;
+            --msg-avatar-bg: #c5c7de;
+            --msg-username: #1e1e32;
+            --role-badge-bg: #d0d2e0;
+            --role-badge-text: #3d3d5a;
+            --timestamp: #7a7a98;
+            --msg-text: #1c1c2e;
+            --mention-bg: #d4d6ed;
+            --mention-text: #2d2d5a;
+            --action-bg: #e4e5ed;
+            --action-text: #5f5f82;
+            --online-badge-bg: #d4f0e0;
+            --online-badge-text: #1d6b3f;
+            --online-dot: #2b9c5a;
+            --sidebar-item-color: #3a3a52;
+            --shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+            --scrollbar-track: #e6e8f0;
+            --scrollbar-thumb: #b8bac8;
+            --icon-color: #5a5a78;
+            --icon-hover: #3a3a58;
+            --mention-bg: #d4d6ed;
+            --mention-text: #2d2d5a;
+        }
+
+        /* 暗色主题 */
+        [data-theme="dark"] {
+            --bg-app: #0f0f14;
+            --bg-header: #1a1a24;
+            --border-header: #2b2b36;
+            --bg-body: #16161f;
+            --bg-sidebar: #14141c;
+            --border-sidebar: #282833;
+            --bg-message-area: #181820;
+            --bg-footer: #16161f;
+            --border-footer: #282833;
+            --input-bg: #23222e;
+            --input-border: #343343;
+            --text-primary: #eaeaf5;
+            --text-secondary: #c0c0d8;
+            --text-muted: #8585a0;
+            --text-light: #6f6f92;
+            --badge-bg: #2f2f3e;
+            --badge-text: #b8b8d0;
+            --hover-bg: #20202b;
+            --active-bg: #2a2a38;
+            --border-msg: #21212b;
+            --avatar-bg: #2e2e42;
+            --avatar-text: #cdcdff;
+            --msg-avatar-bg: #3a3a56;
+            --msg-username: #e0e0f0;
+            --role-badge-bg: #2b2b3e;
+            --role-badge-text: #b0b0da;
+            --timestamp: #5f5f7a;
+            --msg-text: #cfcfeb;
+            --mention-bg: #2a2a44;
+            --mention-text: #a8a8f0;
+            --action-bg: #22222e;
+            --action-text: #8a8aaa;
+            --online-badge-bg: #1e3329;
+            --online-badge-text: #7dcca0;
+            --online-dot: #4fbf7a;
+            --sidebar-item-color: #b0b0cc;
+            --shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
+            --scrollbar-track: #181820;
+            --scrollbar-thumb: #3a3a52;
+            --icon-color: #9a9abc;
+            --icon-hover: #c0c0dc;
+            --mention-bg: #2a2a44;
+            --mention-text: #a8a8f0;
+        }
+
+        /* 亮色主题 (显式) */
+        [data-theme="light"] {
+            --bg-app: #f0f2f5;
+            --bg-header: #e4e6eb;
+            --border-header: #d0d2d8;
+            --bg-body: #eef0f5;
+            --bg-sidebar: #e4e6ec;
+            --border-sidebar: #d0d2da;
+            --bg-message-area: #f5f6fa;
+            --bg-footer: #e8eaf0;
+            --border-footer: #d0d2dc;
+            --input-bg: #f0f1f6;
+            --input-border: #c8c9d4;
+            --text-primary: #1e1e2a;
+            --text-secondary: #3c3c52;
+            --text-muted: #6b6b86;
+            --text-light: #8a8aaa;
+            --badge-bg: #d7d8e3;
+            --badge-text: #3d3d5a;
+            --hover-bg: #d9dbe6;
+            --active-bg: #c8cbd9;
+            --border-msg: #d6d8e3;
+            --avatar-bg: #c9cbe0;
+            --avatar-text: #2e2e4a;
+            --msg-avatar-bg: #c5c7de;
+            --msg-username: #1e1e32;
+            --role-badge-bg: #d0d2e0;
+            --role-badge-text: #3d3d5a;
+            --timestamp: #7a7a98;
+            --msg-text: #1c1c2e;
+            --mention-bg: #d4d6ed;
+            --mention-text: #2d2d5a;
+            --action-bg: #e4e5ed;
+            --action-text: #5f5f82;
+            --online-badge-bg: #d4f0e0;
+            --online-badge-text: #1d6b3f;
+            --online-dot: #2b9c5a;
+            --sidebar-item-color: #3a3a52;
+            --shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+            --scrollbar-track: #e6e8f0;
+            --scrollbar-thumb: #b8bac8;
+            --icon-color: #5a5a78;
+            --icon-hover: #3a3a58;
+            --mention-bg: #d4d6ed;
+            --mention-text: #2d2d5a;
+        }
+
+        /* 自适应系统：通过prefers-color-scheme + 无data-theme属性时生效 */
+        @media (prefers-color-scheme: dark) {
+            :root:not([data-theme="light"]):not([data-theme="dark"]) {
+                --bg-app: #0f0f14;
+                --bg-header: #1a1a24;
+                --border-header: #2b2b36;
+                --bg-body: #16161f;
+                --bg-sidebar: #14141c;
+                --border-sidebar: #282833;
+                --bg-message-area: #181820;
+                --bg-footer: #16161f;
+                --border-footer: #282833;
+                --input-bg: #23222e;
+                --input-border: #343343;
+                --text-primary: #eaeaf5;
+                --text-secondary: #c0c0d8;
+                --text-muted: #8585a0;
+                --text-light: #6f6f92;
+                --badge-bg: #2f2f3e;
+                --badge-text: #b8b8d0;
+                --hover-bg: #20202b;
+                --active-bg: #2a2a38;
+                --border-msg: #21212b;
+                --avatar-bg: #2e2e42;
+                --avatar-text: #cdcdff;
+                --msg-avatar-bg: #3a3a56;
+                --msg-username: #e0e0f0;
+                --role-badge-bg: #2b2b3e;
+                --role-badge-text: #b0b0da;
+                --timestamp: #5f5f7a;
+                --msg-text: #cfcfeb;
+                --mention-bg: #2a2a44;
+                --mention-text: #a8a8f0;
+                --action-bg: #22222e;
+                --action-text: #8a8aaa;
+                --online-badge-bg: #1e3329;
+                --online-badge-text: #7dcca0;
+                --online-dot: #4fbf7a;
+                --sidebar-item-color: #b0b0cc;
+                --shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
+                --scrollbar-track: #181820;
+                --scrollbar-thumb: #3a3a52;
+                --icon-color: #9a9abc;
+                --icon-hover: #c0c0dc;
+                --mention-bg: #2a2a44;
+                --mention-text: #a8a8f0;
+            }
+        }
+
+        @media (prefers-color-scheme: light) {
+            :root:not([data-theme="light"]):not([data-theme="dark"]) {
+                --bg-app: #f0f2f5;
+                --bg-header: #e4e6eb;
+                --border-header: #d0d2d8;
+                --bg-body: #eef0f5;
+                --bg-sidebar: #e4e6ec;
+                --border-sidebar: #d0d2da;
+                --bg-message-area: #f5f6fa;
+                --bg-footer: #e8eaf0;
+                --border-footer: #d0d2dc;
+                --input-bg: #f0f1f6;
+                --input-border: #c8c9d4;
+                --text-primary: #1e1e2a;
+                --text-secondary: #3c3c52;
+                --text-muted: #6b6b86;
+                --text-light: #8a8aaa;
+                --badge-bg: #d7d8e3;
+                --badge-text: #3d3d5a;
+                --hover-bg: #d9dbe6;
+                --active-bg: #c8cbd9;
+                --border-msg: #d6d8e3;
+                --avatar-bg: #c9cbe0;
+                --avatar-text: #2e2e4a;
+                --msg-avatar-bg: #c5c7de;
+                --msg-username: #1e1e32;
+                --role-badge-bg: #d0d2e0;
+                --role-badge-text: #3d3d5a;
+                --timestamp: #7a7a98;
+                --msg-text: #1c1c2e;
+                --mention-bg: #d4d6ed;
+                --mention-text: #2d2d5a;
+                --action-bg: #e4e5ed;
+                --action-text: #5f5f82;
+                --online-badge-bg: #d4f0e0;
+                --online-badge-text: #1d6b3f;
+                --online-dot: #2b9c5a;
+                --sidebar-item-color: #3a3a52;
+                --shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+                --scrollbar-track: #e6e8f0;
+                --scrollbar-thumb: #b8bac8;
+                --icon-color: #5a5a78;
+                --icon-hover: #3a3a58;
+                --mention-bg: #d4d6ed;
+                --mention-text: #2d2d5a;
+            }
+        }
+
+        /* ===== Base Layout ===== */
+        body {
+            background-color: var(--bg-app);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            transition: background-color 0.2s;
+        }
+
+        .chat-app {
+            max-width: 1100px;
+            width: 100%;
+            background-color: var(--bg-app);
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid var(--border-header);
+            transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
+        }
+
+        /* ===== Header ===== */
+        .chat-header {
+            background-color: var(--bg-header);
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--border-header);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .server-icon {
+            background-color: var(--avatar-bg);
+            width: 36px;
+            height: 36px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--avatar-text);
+            font-weight: 700;
+            font-size: 18px;
+            border: 1px solid var(--border-sidebar);
+        }
+
+        .channel-info {
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .channel-name {
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        .channel-tag {
+            color: var(--text-muted);
+            font-size: 13px;
+            background-color: var(--badge-bg);
+            padding: 2px 8px;
+            border-radius: 30px;
+            font-weight: 500;
+        }
+
+        .online-badge {
+            color: var(--online-badge-text);
+            background-color: var(--online-badge-bg);
+            font-size: 13px;
+            padding: 2px 12px;
+            border-radius: 30px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 500;
+            margin-left: 6px;
+            border: 1px solid var(--input-border);
+        }
+
+        .online-badge .dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--online-dot);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .theme-toggle-group {
+            display: flex;
+            background-color: var(--input-bg);
+            border-radius: 40px;
+            padding: 3px;
+            border: 1px solid var(--input-border);
+            gap: 2px;
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+
+        .theme-btn {
+            background: transparent;
+            border: none;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: background 0.15s, color 0.15s;
+            white-space: nowrap;
+        }
+
+        .theme-btn:hover {
+            background-color: var(--hover-bg);
+            color: var(--text-primary);
+        }
+
+        .theme-btn.active {
+            background-color: var(--active-bg);
+            color: var(--text-primary);
+        }
+
+        .header-right .icon-btn {
+            background: transparent;
+            border: none;
+            color: var(--icon-color);
+            padding: 4px 6px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.2s, background 0.2s;
+        }
+
+        .header-right .icon-btn:hover {
+            color: var(--icon-hover);
+            background-color: var(--hover-bg);
+        }
+
+        .header-right .icon-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        /* ===== Body ===== */
+        .chat-body {
+            display: flex;
+            background-color: var(--bg-body);
+            min-height: 560px;
+            transition: background-color 0.2s;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 240px;
+            background-color: var(--bg-sidebar);
+            padding: 16px 12px;
+            border-right: 1px solid var(--border-sidebar);
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+
+        .sidebar-section {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .section-label {
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            padding-left: 6px;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .section-label svg {
+            width: 14px;
+            height: 14px;
+            stroke: var(--text-muted);
+            stroke-width: 2;
+            fill: none;
+        }
+
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 10px;
+            border-radius: 10px;
+            color: var(--sidebar-item-color);
+            font-size: 14px;
+            font-weight: 450;
+            transition: 0.15s;
+            cursor: default;
+        }
+
+        .sidebar-item .icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+        }
+
+        .sidebar-item .icon svg {
+            width: 18px;
+            height: 18px;
+            stroke: currentColor;
+            stroke-width: 2;
+            fill: none;
+        }
+
+        .sidebar-item .badge {
+            margin-left: auto;
+            background-color: var(--badge-bg);
+            padding: 0 8px;
+            border-radius: 30px;
+            font-size: 11px;
+            color: var(--badge-text);
+        }
+
+        .sidebar-item.active {
+            background-color: var(--active-bg);
+            color: var(--text-primary);
+        }
+
+        .sidebar-item.active .icon {
+            color: var(--text-secondary);
+        }
+
+        .sidebar-item:hover:not(.active) {
+            background-color: var(--hover-bg);
+            color: var(--text-primary);
+        }
+
+        .sidebar-divider {
+            height: 1px;
+            background: var(--border-sidebar);
+            margin: 4px 0;
+        }
+
+        .member-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 5px 10px;
+            border-radius: 8px;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .member-item .avatar {
+            width: 26px;
+            height: 26px;
+            background-color: var(--avatar-bg);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--avatar-text);
+        }
+
+        .member-item .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-left: auto;
+        }
+
+        .status-online { background-color: var(--online-dot); }
+        .status-idle { background-color: #e0b35b; }
+
+        .member-item .role-tag {
+            font-size: 10px;
+            background-color: var(--badge-bg);
+            padding: 0 6px;
+            border-radius: 12px;
+            color: var(--text-muted);
+            margin-left: 4px;
+        }
+
+        /* Message Area */
+        .message-area {
+            flex: 1;
+            background-color: var(--bg-message-area);
+            display: flex;
+            flex-direction: column;
+            padding: 16px 20px;
+            gap: 12px;
+            overflow-y: auto;
+            max-height: 560px;
+            transition: background-color 0.2s;
+        }
+
+        .message-item {
+            display: flex;
+            gap: 12px;
+            padding: 4px 0;
+            border-bottom: 1px solid var(--border-msg);
+            padding-bottom: 12px;
+            transition: border-color 0.2s;
+        }
+
+        .message-item:last-of-type {
+            border-bottom: none;
+        }
+
+        .msg-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--msg-avatar-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: var(--avatar-text);
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .msg-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .msg-header {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .msg-username {
+            color: var(--msg-username);
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        .msg-username .role-badge {
+            background-color: var(--role-badge-bg);
+            color: var(--role-badge-text);
+            font-size: 10px;
+            padding: 0 8px;
+            border-radius: 30px;
+            font-weight: 500;
+            margin-left: 6px;
+        }
+
+        .msg-timestamp {
+            color: var(--timestamp);
+            font-size: 12px;
+            margin-left: auto;
+        }
+
+        .msg-text {
+            color: var(--msg-text);
+            font-size: 15px;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+
+        .msg-text .mention {
+            color: var(--mention-text);
+            background-color: var(--mention-bg);
+            padding: 0 6px;
+            border-radius: 12px;
+        }
+
+        .msg-actions {
+            margin-top: 4px;
+            display: flex;
+            gap: 10px;
+            color: var(--action-text);
+            font-size: 13px;
+        }
+
+        .msg-actions span {
+            cursor: default;
+            background-color: var(--action-bg);
+            padding: 0 10px;
+            border-radius: 30px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .msg-actions span svg {
+            width: 14px;
+            height: 14px;
+            stroke: currentColor;
+            stroke-width: 2;
+            fill: none;
+        }
+
+        .highlight-date {
+            color: var(--text-muted);
+            font-size: 12px;
+            background: var(--badge-bg);
+            padding: 4px 12px;
+            border-radius: 30px;
+            align-self: center;
+            margin: 4px 0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .highlight-date svg {
+            width: 14px;
+            height: 14px;
+            stroke: currentColor;
+            stroke-width: 2;
+            fill: none;
+        }
+
+        /* Footer */
+        .chat-footer {
+            background-color: var(--bg-footer);
+            padding: 12px 24px 18px 24px;
+            border-top: 1px solid var(--border-footer);
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+
+        .input-wrapper {
+            display: flex;
+            align-items: center;
+            background-color: var(--input-bg);
+            border-radius: 40px;
+            padding: 4px 12px 4px 18px;
+            border: 1px solid var(--input-border);
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+
+        .input-wrapper input {
+            background: transparent;
+            border: none;
+            padding: 12px 0;
+            flex: 1;
+            color: var(--text-primary);
+            font-size: 15px;
+            outline: none;
+        }
+
+        .input-wrapper input::placeholder {
+            color: var(--text-light);
+        }
+
+        .input-wrapper .input-icon {
+            color: var(--text-muted);
+            padding: 4px 6px;
+            border-radius: 8px;
+            cursor: default;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.2s;
+        }
+
+        .input-wrapper .input-icon svg {
+            width: 20px;
+            height: 20px;
+            stroke: currentColor;
+            stroke-width: 2;
+            fill: none;
+        }
+
+        .input-wrapper .send-icon {
+            color: var(--text-secondary);
+            background-color: var(--badge-bg);
+            padding: 6px 10px;
+            border-radius: 30px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: default;
+            transition: background 0.2s;
+        }
+
+        .input-wrapper .send-icon svg {
+            width: 18px;
+            height: 18px;
+            stroke: currentColor;
+            stroke-width: 2;
+            fill: none;
+        }
+
+        /* Scrollbar */
+        .message-area::-webkit-scrollbar {
+            width: 6px;
+        }
+        .message-area::-webkit-scrollbar-track {
+            background: var(--scrollbar-track);
+        }
+        .message-area::-webkit-scrollbar-thumb {
+            background: var(--scrollbar-thumb);
+            border-radius: 10px;
+        }
+
+        @media (max-width: 780px) {
+            .sidebar {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid var(--border-sidebar);
+                flex-direction: row;
+                flex-wrap: wrap;
+                max-height: 160px;
+                overflow-y: auto;
+                padding: 12px 8px;
+            }
+            .chat-body {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="chat-app" id="app">
+
+    <!-- Header -->
+    <div class="chat-header">
+        <div class="header-left">
+            <div class="server-icon">#</div>
+            <div class="channel-info">
+                <span class="channel-name">general</span>
+                <span class="channel-tag">2 Online</span>
+                <span class="online-badge"><span class="dot"></span> 2</span>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="theme-toggle-group">
+                <button class="theme-btn" data-theme-value="auto" id="themeAuto">自适应</button>
+                <button class="theme-btn" data-theme-value="light" id="themeLight">白天</button>
+                <button class="theme-btn" data-theme-value="dark" id="themeDark">黑夜</button>
+            </div>
+            <button class="icon-btn" aria-label="搜索">
+                <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            </button>
+            <button class="icon-btn" aria-label="添加成员">
+                <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Body -->
+    <div class="chat-body">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-section">
+                <div class="section-label">
+                    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                    频道
+                </div>
+                <div class="sidebar-item active">
+                    <span class="icon"><svg viewBox="0 0 24 24"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/></svg></span>
+                    general
+                    <span class="badge">2</span>
+                </div>
+                <div class="sidebar-item">
+                    <span class="icon"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+                    开发
+                </div>
+                <div class="sidebar-item">
+                    <span class="icon"><svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg></span>
+                    语音
+                </div>
+            </div>
+            <div class="sidebar-divider"></div>
+            <div class="sidebar-section">
+                <div class="section-label">
+                    <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    成员 — 2
+                </div>
+                <div class="member-item">
+                    <span class="avatar">R</span>
+                    <span class="member-name">Ryan X</span>
+                    <span class="role-tag">Co-Builder</span>
+                    <span class="status-dot status-online"></span>
+                </div>
+                <div class="member-item">
+                    <span class="avatar">P</span>
+                    <span class="member-name">Paper_Cricel</span>
+                    <span class="role-tag">Data Pack</span>
+                    <span class="status-dot status-idle"></span>
+                </div>
+                <div class="member-item">
+                    <span class="avatar">G</span>
+                    <span class="member-name">Gam3rKeyX</span>
+                    <span class="role-tag">Conductor</span>
+                    <span class="status-dot status-online"></span>
+                </div>
+                <div class="member-item" style="padding-left: 10px; color: var(--text-muted);">
+                    <span style="font-size: 13px;">☕</span>
+                    <span style="font-size: 13px;">KOFI</span>
+                </div>
+            </div>
+            <div class="sidebar-divider"></div>
+            <div class="sidebar-section">
+                <div class="section-label">
+                    <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                    组织
+                </div>
+                <div class="sidebar-item" style="color: var(--text-muted);">
+                    <span class="icon"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></span>
+                    Mr · Org
+                    <span class="badge" style="background: var(--badge-bg);">GH</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Message Area -->
+        <div class="message-area">
+            <div class="highlight-date">
+                <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                August 3, 2026
+            </div>
+
+            <div class="message-item">
+                <div class="msg-avatar" style="background: var(--msg-avatar-bg);">P</div>
+                <div class="msg-content">
+                    <div class="msg-header">
+                        <span class="msg-username">Paper_Cricel <span class="role-badge">Data Pack</span></span>
+                        <span class="msg-timestamp">07/18/2026 2:38 PM</span>
+                    </div>
+                    <div class="msg-text">modrinth還能加好友的嗎</div>
+                    <div class="msg-actions">
+                        <span><svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg> 2</span>
+                        <span><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="message-item">
+                <div class="msg-avatar" style="background: var(--msg-avatar-bg);">R</div>
+                <div class="msg-content">
+                    <div class="msg-header">
+                        <span class="msg-username">Ryan X <span class="role-badge">Co-Builder</span></span>
+                        <span class="msg-timestamp">07/18/2026 2:38 PM</span>
+                    </div>
+                    <div class="msg-text">逝Mr安息</div>
+                    <div class="msg-actions">
+                        <span><svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg> 1</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="message-item">
+                <div class="msg-avatar" style="background: var(--msg-avatar-bg);">R</div>
+                <div class="msg-content">
+                    <div class="msg-header">
+                        <span class="msg-username">Ryan X <span class="role-badge">Co-Builder</span></span>
+                        <span class="msg-timestamp">07/18/2026 2:39 PM</span>
+                    </div>
+                    <div class="msg-text">
+                        <span class="mention">@Data Pack · Paper_Cricel</span> 我唔知啊，記得可以吧<br>我看一眼<br>你們有創建Mr的organization嗎
+                    </div>
+                    <div class="msg-actions">
+                        <span><svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg> 3</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="message-item">
+                <div class="msg-avatar" style="background: var(--msg-avatar-bg);">G</div>
+                <div class="msg-content">
+                    <div class="msg-header">
+                        <span class="msg-username">Gam3rKeyX <span class="role-badge">Conductor</span></span>
+                        <span class="msg-timestamp">07/18/2026 2:40 PM</span>
+                    </div>
+                    <div class="msg-text">目前沒有</div>
+                    <div class="msg-actions">
+                        <span><svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="message-item">
+                <div class="msg-avatar" style="background: var(--msg-avatar-bg);">R</div>
+                <div class="msg-content">
+                    <div class="msg-header">
+                        <span class="msg-username">Ryan X <span class="role-badge">Co-Builder</span></span>
+                        <span class="msg-timestamp">07/18/2026 2:41 PM</span>
+                    </div>
+                    <div class="msg-text">有的話會不會cooperate方便一點</div>
+                </div>
+            </div>
+
+            <div class="message-item">
+                <div class="msg-avatar" style="background: var(--msg-avatar-bg);">R</div>
+                <div class="msg-content">
+                    <div class="msg-header">
+                        <span class="msg-username">Ryan X <span class="role-badge">Co-Builder</span></span>
+                        <span class="msg-timestamp">07/18/2026 3:42 PM</span>
+                    </div>
+                    <div class="msg-text">我們要不要在MR/GH搞個org啊</div>
+                    <div class="msg-actions">
+                        <span><svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg> 1</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="highlight-date" style="margin-top: 8px;">
+                <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                August 3, 2026
+            </div>
+
+            <div class="message-item">
+                <div class="msg-avatar" style="background: var(--msg-avatar-bg);">G</div>
+                <div class="msg-content">
+                    <div class="msg-header">
+                        <span class="msg-username">Gam3rKeyX <span class="role-badge">Conductor</span></span>
+                        <span class="msg-timestamp">08/03/2026 4:02 PM</span>
+                    </div>
+                    <div class="msg-text">對了您的指令包參數怎麼填</div>
+                    <div class="msg-actions">
+                        <span><svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="message-item">
+                <div class="msg-avatar" style="background: var(--msg-avatar-bg);">P</div>
+                <div class="msg-content">
+                    <div class="msg-header">
+                        <span class="msg-username">Paper_Cricel <span class="role-badge">Data Pack</span></span>
+                        <span class="msg-timestamp">08/03/2026 4:02 PM</span>
+                    </div>
+                    <div class="msg-text">我前幾天的時候做好了，但突然被叫去弄別的東西所以就擱置到現在</div>
+                    <div class="msg-actions">
+                        <span><svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg> 2</span>
+                        <span><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="message-item" style="border-bottom: none; opacity: 0.6; margin-top: 4px;">
+                <div class="msg-content">
+                    <div class="msg-text" style="font-size: 13px; color: var(--text-light);"># Message #gene...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="chat-footer">
+        <div class="input-wrapper">
+            <span class="input-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg></span>
+            <input type="text" placeholder="发送消息...">
+            <span class="input-icon"><svg viewBox="0 0 24 24"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg></span>
+            <span class="input-icon"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="6" height="6"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></span>
+            <span class="send-icon"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></span>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        const app = document.getElementById('app');
+        const themeAuto = document.getElementById('themeAuto');
+        const themeLight = document.getElementById('themeLight');
+        const themeDark = document.getElementById('themeDark');
+        const allBtns = [themeAuto, themeLight, themeDark];
+
+        function setActiveBtn(activeBtn) {
+            allBtns.forEach(btn => btn.classList.remove('active'));
+            if (activeBtn) activeBtn.classList.add('active');
+        }
+
+        function setTheme(mode) {
+            // 主题变量定义在 :root 上，body 背景也读取 :root 变量，
+            // 因此 data-theme 必须挂在 <html>（documentElement）上，才能让整页（含大背景）一起切换
+            const root = document.documentElement;
+            root.removeAttribute('data-theme');
+            if (mode === 'light') {
+                root.setAttribute('data-theme', 'light');
+                setActiveBtn(themeLight);
+            } else if (mode === 'dark') {
+                root.setAttribute('data-theme', 'dark');
+                setActiveBtn(themeDark);
+            } else {
+                root.removeAttribute('data-theme');
+                setActiveBtn(themeAuto);
+            }
+            try {
+                localStorage.setItem('mr-chat-theme', mode);
+            } catch(e) {}
+        }
+
+        function loadTheme() {
+            let saved = 'auto';
+            try {
+                const stored = localStorage.getItem('mr-chat-theme');
+                if (stored === 'light' || stored === 'dark' || stored === 'auto') {
+                    saved = stored;
+                }
+            } catch(e) {}
+            setTheme(saved);
+        }
+
+        themeAuto.addEventListener('click', () => setTheme('auto'));
+        themeLight.addEventListener('click', () => setTheme('light'));
+        themeDark.addEventListener('click', () => setTheme('dark'));
+
+        loadTheme();
+    })();
+</script>
+
+</body>
+</html>
