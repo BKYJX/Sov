@@ -1,45 +1,41 @@
-
 (function() {
     'use strict';
 
     /* ================================================================
-     * 后端接口预留（TODO 对接）
+     * Sov 前端 — 已接入 sov-serverside 后端（Docker :8443）
      * ----------------------------------------------------------------
-     * 当前为纯前端版本：消息只在本页内存中渲染，发送后刷新即丢失。
-     * 后端就绪后只需：
-     *   1. 填写 CONFIG.api.baseUrl（例如 'http://10.66.1.98:8000'）；
-     *   2. 在 loadMessages() 中用 GET  替换占位逻辑；
-     *   3. 在 sendMessage()   中用 POST 替换占位逻辑（失败调用 rollbackMessage）。
-     * 接口约定（可协商调整）：
-     *   GET  {baseUrl}/api/messages
-     *        -> 期望返回 [{ id, username, role, avatar, content, timestamp }]
-     *   POST {baseUrl}/api/messages/send
-     *        -> 请求体 { username, role, avatar, content }
-     *        -> 期望返回 { ok: true, message: { id, username, role, avatar, content, timestamp } }
-     * ================================================================
-     * 接收他人消息（后端推送）：
-     *   - 统一入口：window.ChatAPI.receiveMessage(msgObj)
-     *   - WebSocket 接入：ws.onmessage = e => ChatAPI.receiveMessage(JSON.parse(e.data).message)
-     *   - 轮询增量接入：把新增消息逐个交给 receiveMessage()
-     *   - receiveMessage 自动处理：按 id 去重、自动分组、滚动到底、自动加入成员列表
+     * 后端：GitHub BKYJX/sov-serverside（Go，单进程单群组，文件存储）
+     * 认证：请求头 X-User-Id + X-Password（明文比对 bcrypt，生产应置于 HTTPS 后）
+     * 消息：POST /chat/send  +  GET /chat/messages?date=YYYY-MM-DD&since=<unix秒>
+     * 消息行格式：timestamp|senderId|ciphertext|encryptedKeysJson
+     *   - ciphertext 为 Opaque 字符串，服务器不解码；
+     *   - 当前客户端约定 ciphertext = base64(JSON({v:1, content:文本}))，
+     *     属于传输占位。真正 E2EE（公钥加密 + encryptedKeys 密钥分发）待后续实现。
+     * 轮询：每 3 秒增量拉取 since=最后一条时间戳，行级 id 去重。
      * ================================================================ */
     const CONFIG = {
         channel: {
             name: 'general',
             tag: '动态测试',
         },
-        currentUser: {
-            username: 'You',
-            role: '',
+        // 当前登录用户（开发阶段硬编码，生产应由登录表单提供）
+        user: {
+            id: 'You',            // 后端 userId（与 X-User-Id 一致）
+            password: 'sovtest123', // 后端密码（≥6 位，管理员在启动时设置）
+            displayName: 'You',
             avatar: 'Y',
         },
         api: {
-            baseUrl: '',
+            // 自动跟随页面来源 host：页面在 10.66.1.98:80，后端同机 8443
+            get baseUrl() { return location.protocol + '//' + location.hostname + ':8443'; },
             endpoints: {
-                list: '/api/messages',
-                send: '/api/messages/send',
+                health: '/health',
+                list: '/chat/messages',
+                send: '/chat/send',
+                members: '/members/list',
             }
-        }
+        },
+        pollInterval: 3000, // 轮询间隔（ms）
     };
 
     /* ===== 元素引用 ===== */
@@ -53,8 +49,10 @@
 
     /* ===== 数据 ===== */
     let messages = [];
-    const receivedIds = new Set();
-    const members = new Map(); // username -> { avatar, role, status }
+    const receivedIds = new Set();  // 已显示消息的行 id（去重）
+    const pendingSent = [];         // 本地已乐观渲染、待后端确认的消息 { localId, senderId, ciphertext }
+    const members = new Map();      // username -> { avatar, role, status }
+    let lastPollTs = 0;             // 轮询增量起点（Unix 秒）
 
     /* ===== 工具函数 ===== */
 
@@ -95,6 +93,111 @@
             a.getFullYear() === b.getFullYear() &&
             a.getMonth() === b.getMonth() &&
             a.getDate() === b.getDate();
+    }
+
+    function formatDateKey(date) {
+        return date.getFullYear() + '-' +
+               String(date.getMonth() + 1).padStart(2, '0') + '-' +
+               String(date.getDate()).padStart(2, '0');
+    }
+
+    /* ===== 后端通信 ===== */
+
+    // 带认证头的 fetch 封装；返回 JSON；失败抛错
+    async function apiFetch(path, options) {
+        const opts = options || {};
+        const headers = Object.assign({
+            'Content-Type': 'application/json',
+            'X-User-Id': CONFIG.user.id,
+            'X-Password': CONFIG.user.password,
+        }, opts.headers || {});
+        const res = await fetch(CONFIG.api.baseUrl + path, Object.assign({}, opts, { headers: headers }));
+        let data = {};
+        try { data = await res.json(); } catch (e) {}
+        if (!res.ok || data.success === false) {
+            throw new Error(data.error || ('HTTP ' + res.status));
+        }
+        return data;
+    }
+
+    // 明文打包为 ciphertext（传输占位；真 E2EE 待实现）
+    function encodePayload(text) {
+        const json = JSON.stringify({ v: 1, content: text });
+        return btoa(unescape(encodeURIComponent(json)));
+    }
+
+    function decodePayload(ciphertext) {
+        try {
+            const json = decodeURIComponent(escape(atob(ciphertext)));
+            const obj = JSON.parse(json);
+            return (obj && obj.v === 1) ? (obj.content || '') : null;
+        } catch (e) {
+            return null;
+        }
+    }
+
+    // 解析后端消息行：timestamp|senderId|ciphertext|encryptedKeysJson
+    function parseMessageLine(line) {
+        const idx1 = line.indexOf('|');
+        if (idx1 <= 0) return null;
+        const ts = parseInt(line.slice(0, idx1), 10);
+        if (isNaN(ts)) return null;
+        const rest = line.slice(idx1 + 1);
+        const idx2 = rest.indexOf('|');
+        if (idx2 <= 0) return null;
+        const rest2 = rest.slice(idx2 + 1);
+        // ciphertext 为第三个 | 之前的部分（尾部的 encryptedKeysJson 当前前端不使用，忽略）
+        const idx3 = rest2.indexOf('|');
+        const ciphertext = idx3 === -1 ? rest2 : rest2.slice(0, idx3);
+        return {
+            ts: ts,
+            senderId: rest.slice(0, idx2),
+            ciphertext: ciphertext,
+        };
+    }
+
+    // 行消息的唯一 id（同秒同人同内容视为同一条）
+    function lineId(parsed) {
+        return parsed.ts + '-' + parsed.senderId + '-' + parsed.ciphertext.slice(0, 32);
+    }
+
+    // 处理一条后端消息行：去重 → 跳过本地已发送 → 接收渲染
+    function ingestLine(line) {
+        const parsed = parseMessageLine(line);
+        if (!parsed) return;
+        const id = lineId(parsed);
+        if (receivedIds.has(id)) return;
+
+        // 本地刚发送成功的消息（乐观渲染过）：跳过并移除缓存
+        const dupIdx = pendingSent.findIndex(function(p) {
+            return p.senderId === parsed.senderId && p.ciphertext === parsed.ciphertext;
+        });
+        if (dupIdx !== -1) {
+            pendingSent.splice(dupIdx, 1);
+            receivedIds.add(id);
+            if (parsed.ts > lastPollTs) lastPollTs = parsed.ts;
+            return;
+        }
+
+        const content = decodePayload(parsed.ciphertext);
+        if (content == null) return; // 无法解析的密文跳过（如其他客户端 E2EE 消息）
+
+        const msg = receiveMessage({
+            id: id,
+            username: parsed.senderId,
+            avatar: parsed.senderId.charAt(0).toUpperCase(),
+            content: content,
+            timestamp: new Date(parsed.ts * 1000),
+        });
+        if (msg && parsed.ts > lastPollTs) lastPollTs = parsed.ts;
+    }
+
+    // 拉取历史 + 增量轮询共用的请求
+    async function fetchMessages(since) {
+        const path = CONFIG.api.endpoints.list + '?date=' + formatDateKey(new Date()) +
+                     (since > 0 ? '&since=' + since : '');
+        const data = await apiFetch(path);
+        (data.messages || []).forEach(ingestLine);
     }
 
     /* ===== 渲染 ===== */
@@ -153,16 +256,16 @@
             messageArea.appendChild(emptyState);
             return;
         }
-        const frag = document.createDocumentFragment();
+        let html = '';
         let lastDate = null;
         messages.forEach(function(m, i) {
             if (!lastDate || !isSameDay(lastDate, m.timestamp)) {
-                frag.insertAdjacentHTML('beforeend', dateSeparatorTemplate(m.timestamp));
+                html += dateSeparatorTemplate(m.timestamp);
                 lastDate = m.timestamp;
             }
-            frag.insertAdjacentHTML('beforeend', messageTemplate(m, { continued: isContinued(messages[i - 1], m) }));
+            html += messageTemplate(m, { continued: isContinued(messages[i - 1], m) });
         });
-        messageArea.appendChild(frag);
+        messageArea.innerHTML = html;
         applyGroupClasses();
         scrollToBottom();
     }
@@ -187,11 +290,14 @@
     }
 
     function makeMessage(partial) {
-        const now = new Date();
-        let ts = now;
-        if (partial.timestamp) {
+        let ts;
+        if (partial.timestamp instanceof Date) {
+            ts = partial.timestamp;
+        } else if (partial.timestamp != null) {
             const parsed = new Date(partial.timestamp);
-            if (!isNaN(parsed.getTime())) ts = parsed;
+            ts = isNaN(parsed.getTime()) ? new Date() : parsed;
+        } else {
+            ts = new Date();
         }
         return {
             id: partial.id != null ? partial.id : Date.now(),
@@ -228,6 +334,23 @@
         document.getElementById('channelTag').textContent = count + ' Online';
     }
 
+    // 从后端拉取成员列表（members.txt）
+    async function loadMembers() {
+        try {
+            const data = await apiFetch(CONFIG.api.endpoints.members);
+            (data.members || []).forEach(function(m) {
+                if (!m || !m.userId || m.userId === CONFIG.user.id) return; // 自己由 init 添加
+                ensureMember({
+                    username: m.userId,
+                    avatar: m.userId.charAt(0).toUpperCase(),
+                    role: '',
+                });
+            });
+        } catch (e) {
+            console.error('拉取成员列表失败', e);
+        }
+    }
+
     /* ===== 发送消息 ===== */
 
     // textarea 自适应高度
@@ -236,7 +359,7 @@
         msgInput.style.height = Math.min(msgInput.scrollHeight, 120) + 'px';
     }
 
-    // 发送失败回滚（后端对接时调用）
+    // 发送失败回滚：从本地列表移除该条并重渲染
     function rollbackMessage(id) {
         const idx = messages.findIndex(function(m) { return m.id === id; });
         if (idx !== -1) {
@@ -245,36 +368,45 @@
         }
     }
 
-    function sendMessage() {
+    async function sendMessage() {
         const text = msgInput.value.trim();
-        // 无论是否为空都清空输入框（修复空内容发送后残留空格）
+        // 无论是否为空都清空输入框
         msgInput.value = '';
         autoResize();
         if (!text) return;
 
         const msg = makeMessage({
-            username: CONFIG.currentUser.username,
-            role: CONFIG.currentUser.role,
-            avatar: CONFIG.currentUser.avatar,
+            username: CONFIG.user.displayName || CONFIG.user.id,
+            role: '',
+            avatar: CONFIG.user.avatar,
             content: text,
         });
+        const ciphertext = encodePayload(text);
 
+        // 乐观渲染
         receivedIds.add(msg.id);
         appendMessage(msg);
         msgInput.focus();
 
-        // TODO 后端对接：发送请求，失败则回滚
-        // fetch(CONFIG.api.baseUrl + CONFIG.api.endpoints.send, {
-        //     method: 'POST',
-        //     headers: { 'Content-Type': 'application/json' },
-        //     body: JSON.stringify({ username: CONFIG.currentUser.username, role: CONFIG.currentUser.role, avatar: CONFIG.currentUser.avatar, content: text }),
-        // })
-        // .then(r => r.json())
-        // .then(res => { if (!res.ok) rollbackMessage(msg.id); })
-        // .catch(err => { rollbackMessage(msg.id); console.error('发送失败', err); });
+        // 发送到后端
+        try {
+            await apiFetch(CONFIG.api.endpoints.send, {
+                method: 'POST',
+                body: JSON.stringify({
+                    senderId: CONFIG.user.id,
+                    ciphertext: ciphertext,
+                    encryptedKeys: {},
+                }),
+            });
+            // 记录待确认消息：轮询拉回同一条时跳过（本地已显示）
+            pendingSent.push({ localId: msg.id, senderId: CONFIG.user.id, ciphertext: ciphertext });
+        } catch (e) {
+            rollbackMessage(msg.id);
+            console.error('发送失败', e);
+        }
     }
 
-    /* ===== 接收他人消息（后端对接入口） ===== */
+    /* ===== 接收他人消息（后端轮询 / 外部推送共用入口） ===== */
     function receiveMessage(raw) {
         if (!raw || raw.content == null) return null;
         const msg = makeMessage(raw);
@@ -289,15 +421,14 @@
         receiveMessage: receiveMessage,
     };
 
-    /* ===== 拉取历史消息（后端预留） ===== */
-    function loadMessages() {
-        // TODO 后端对接：将下面占位逻辑替换为真实请求
-        // fetch(CONFIG.api.baseUrl + CONFIG.api.endpoints.list)
-        //     .then(r => r.json())
-        //     .then(list => { (list || []).forEach(receiveMessage); })
-        //     .catch(err => console.error('拉取历史消息失败', err));
-
-        renderMessages();
+    /* ===== 拉取历史消息（后端） ===== */
+    async function loadMessages() {
+        try {
+            await fetchMessages(0); // 拉当天全部历史
+            await loadMembers();
+        } catch (e) {
+            console.error('拉取历史消息失败', e);
+        }
     }
 
     /* ===== 频道切换 ===== */
@@ -311,7 +442,11 @@
         messages = [];
         receivedIds.clear();
         renderMessages();
-        // TODO 后端对接：加载该频道的历史消息
+        if (name === 'general') {
+            // general 频道对接后端群组
+            loadMessages();
+        }
+        // TODO 后端暂为单群组设计；开发/语音频道为本地隔离频道，后续如需多频道可扩展
     }
 
     /* ===== 主题切换 ===== */
@@ -361,13 +496,13 @@
         document.getElementById('channelTag').textContent = CONFIG.channel.tag;
 
         // 当前用户信息
-        document.getElementById('selfMemberAvatar').textContent = CONFIG.currentUser.avatar;
-        document.getElementById('selfMemberName').textContent = CONFIG.currentUser.username;
+        document.getElementById('selfMemberAvatar').textContent = CONFIG.user.avatar;
+        document.getElementById('selfMemberName').textContent = CONFIG.user.displayName;
 
         // 成员列表初始化（自己）
-        members.set(CONFIG.currentUser.username, {
-            avatar: CONFIG.currentUser.avatar,
-            role: CONFIG.currentUser.role,
+        members.set(CONFIG.user.id, {
+            avatar: CONFIG.user.avatar,
+            role: 'Admin',
             status: 'online'
         });
         updateOnlineCount();
@@ -386,7 +521,7 @@
         // textarea 自适应高度
         msgInput.addEventListener('input', autoResize);
 
-        // 消息操作图标事件委托（hover 显示由 CSS 控制）
+        // 消息操作图标事件委托
         messageArea.addEventListener('click', function(e) {
             var reply = e.target.closest('.action-reply');
             if (reply) { msgInput.focus(); return; }
@@ -407,8 +542,16 @@
         themeDark.addEventListener('click', function() { setTheme('dark'); });
         loadTheme();
 
-        // 拉取历史消息
+        // 拉取历史消息 + 成员列表
         loadMessages();
+
+        // 增量轮询（仅 general 频道）
+        setInterval(function() {
+            if (CONFIG.channel.name !== 'general') return;
+            fetchMessages(lastPollTs).catch(function(e) {
+                // 轮询失败静默（网络抖动/后端重启），下轮重试
+            });
+        }, CONFIG.pollInterval);
 
         msgInput.focus();
         autoResize();

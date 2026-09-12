@@ -572,9 +572,10 @@
         .message-item {
             display: flex;
             gap: 12px;
-            padding: 4px 0;
+            padding: 2px 0;
             border-bottom: none;
             padding-bottom: 2px;
+            position: relative;
             transition: border-color 0.2s;
             animation: msg-in 0.18s ease;
         }
@@ -587,7 +588,7 @@
         /* 分组：横线只出现在不同说话者之间（一组的最后一条，后面跟着不同人） */
         .message-item.msg-group-end {
             border-bottom: 1px solid var(--border-msg);
-            padding-bottom: 12px;
+            padding-bottom: 10px;
         }
 
         /* 同一发送者连续消息的后续条：隐藏头像/名字（文字仍与组首对齐） */
@@ -621,6 +622,7 @@
             align-items: baseline;
             gap: 8px;
             flex-wrap: wrap;
+            padding-right: 64px;
         }
 
         .msg-username {
@@ -661,16 +663,20 @@
         }
 
         .msg-actions {
-            margin-top: 4px;
+            position: absolute;
+            top: 0;
+            right: 4px;
             display: flex;
-            gap: 10px;
+            gap: 4px;
             color: var(--action-text);
             font-size: 13px;
             opacity: 0;
             transition: opacity 0.15s;
+            z-index: 2;
         }
 
-        .message-item:hover .msg-actions {
+        .message-item:hover .msg-actions,
+        .message-item:focus-within .msg-actions {
             opacity: 1;
         }
 
